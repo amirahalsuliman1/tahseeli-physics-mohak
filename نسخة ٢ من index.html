@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>محاك التحصيلي – فيزياء</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Arabic", "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at top left, #1f2937 0, #020617 55%, #000 100%);
+      color: #e5e7eb;
+    }
+
+    .shell {
+      width: 100%;
+      max-width: 900px;
+      margin: 16px;
+      background: radial-gradient(circle at top, #0f172a, #020617);
+      border-radius: 24px;
+      padding: 24px 22px 18px;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      box-shadow: 0 25px 60px rgba(15, 23, 42, 0.8);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #f9fafb;
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      color: #9ca3af;
+      margin-top: 4px;
+    }
+
+    .chip {
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      background: rgba(79, 70, 229, 0.18);
+      border: 1px solid rgba(129, 140, 248, 0.7);
+      color: #c7d2fe;
+    }
+
+    .section {
+      margin-top: 4px;
+      padding: 16px 14px 18px;
+      border-radius: 18px;
+      background: radial-gradient(circle at top left, #020617 0, #020617 40%, #020617 100%);
+      border: 1px solid rgba(31, 41, 55, 0.9);
+    }
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #e5e7eb;
+    }
+
+    .instructions {
+      font-size: 0.9rem;
+      color: #d1d5db;
+      line-height: 1.6;
+    }
+
+    .instructions ul {
+      padding-right: 18px;
+      margin: 6px 0 0;
+    }
+
+    .instructions li {
+      margin-bottom: 4px;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .meta-card {
+      padding: 10px 10px;
+      border-radius: 14px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(51, 65, 85, 0.9);
+      font-size: 0.85rem;
+    }
+
+    .meta-label {
+      color: #9ca3af;
+      margin-bottom: 2px;
+    }
+
+    .meta-value {
+      font-weight: 600;
+      color: #e5e7eb;
+    }
+
+    .btn-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .btn {
+      border-radius: 999px;
+      padding: 9px 14px;
+      font-size: 0.9rem;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: transparent;
+      color: #e5e7eb;
+      cursor: pointer;
+      transition: 0.15s ease;
+    }
+
+    .btn:hover {
+      background: rgba(15, 23, 42, 0.9);
+      border-color: #38bdf8;
+    }
+
+    .btn-primary {
+      background: linear-gradient(to right, #14b8a6, #06b6d4);
+      border: none;
+      font-weight: 600;
+      color: #0b1120;
+      box-shadow: 0 12px 30px rgba(8, 47, 73, 0.7);
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.05);
+      transform: translateY(-1px);
+      color: #e5e7eb;
+    }
+
+    .btn-center {
+      display: inline-flex;
+      margin: 0 auto;   /* يوسّط الزر داخل الحاوية */
+    }
+
+    .btn[disabled] {
+      opacity: 0.6;
+      cursor: default;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .quiz-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 0.9rem;
+      color: #9ca3af;
+    }
+
+    .timer-pill {
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(15, 118, 110, 0.15);
+      color: #6ee7b7;
+      border: 1px solid rgba(45, 212, 191, 0.6);
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .timer-pill.urgent {
+      background: rgba(127, 29, 29, 0.4);
+      color: #fecaca;
+      border-color: rgba(239, 68, 68, 0.9);
+    }
+
+    .question-card {
+      margin-top: 6px;
+      padding: 14px 12px 16px;
+      border-radius: 16px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(55, 65, 81, 0.9);
+    }
+
+    .question-number {
+      font-size: 0.85rem;
+      color: #9ca3af;
+      margin-bottom: 6px;
+    }
+
+    .question-text {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #e5e7eb;
+    }
+
+    .subject-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.78rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(129, 140, 248, 0.7);
+      color: #c7d2fe;
+      margin-bottom: 4px;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .option-btn {
+      width: 100%;
+      textalign: right;
+      border-radius: 12px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      padding: 9px 12px;
+      background: rgba(15, 23, 42, 0.9);
+      color: #e5e7eb;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      transition: 0.12s ease;
+    }
+
+    .option-btn span:first-child {
+      opacity: 0.75;
+      font-size: 0.85rem;
+      margin-left: 8px;
+      color: #9ca3af;
+    }
+
+    .option-btn:hover {
+      border-color: rgba(56, 189, 248, 0.7);
+      background: rgba(15, 23, 42, 1);
+    }
+
+    .option-btn.selected {
+      border-color: rgba(45, 212, 191, 0.9);
+      background: linear-gradient(to left, rgba(15, 23, 42, 0.9), rgba(8, 47, 73, 0.9));
+      box-shadow: 0 10px 25px rgba(8, 47, 73, 0.8);
+    }
+
+    .option-btn.disabled {
+      opacity: 0.55;
+      cursor: default;
+      filter: grayscale(0.1);
+    }
+
+    .quiz-footer {
+      margin-top: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: #9ca3af;
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .result-box {
+      text-align: center;
+      padding: 16px 10px 10px;
+    }
+
+    .result-main {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: #f9fafb;
+    }
+
+    .result-note {
+      font-size: 0.95rem;
+      margin-bottom: 8px;
+      color: #e5e7eb;
+    }
+
+    .result-meta {
+      font-size: 0.85rem;
+      color: #9ca3af;
+    }
+
+    .footer {
+      margin-top: 4px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(51, 65, 85, 0.9);
+      font-size: 0.8rem;
+      text-align: center;
+      color: #9ca3af;
+    }
+
+    .footer span {
+      font-weight: 600;
+      color: #a5b4fc;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .footer-names {
+      margin-top: 4px;
+      margin-bottom: 4px;
+      font-size: 0.8rem;
+      opacity: 0.9;
+    }
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 0.85rem;
+    }
+
+    .form-field label {
+      color: #e5e7eb;
+    }
+
+    .form-field input,
+    .form-field select {
+      border-radius: 999px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      outline: none;
+      background: rgba(15, 23, 42, 0.9);
+      color: #e5e7eb;
+    }
+
+    .form-field input::placeholder {
+      color: #6b7280;
+    }
+
+    .form-field input:focus,
+    .form-field select:focus {
+      border-color: rgba(129, 140, 248, 0.9);
+      box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.4);
+    }
+
+    @media (max-width: 640px) {
+      .shell {
+        padding: 18px 14px 14px;
+      }
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <div class="header">
+    <div>
+      <div class="title">محاكاة اختبار التحصيلي – فيزياء</div>
+      <div class="subtitle">تدريب خفيف لـ التحصيلي على أسئلة الفيزياء 🌸</div>
+    </div>
+    <div class="chip">وضع الأسئلة المتتابعة</div>
+  </div>
+
+  <div id="app"></div>
+
+ <footer class="footer">
+  <div>محاكاة التحصيلي من إعداد:</div>
+  <div class="footer-names">
+    أميرة، شيماء، حسناء، سمية، مريم، بلسم، بسمه، هيفاء، جنى
+  </div>
+  <div>© 2025 – للاستخدام التدريبي فقط</div>
+</footer>
+</div>
+
+<script>
+  const QUESTION_TIME_SECONDS = 60; // ثانية لكل سؤال
+
+  const studentInfo = {
+    name: "",
+    school: "",
+    grade: ""
+  };
+
+  // 10 أسئلة فيزياء
+  // 10 أسئلة فيزياء عن الضوء والكهرباء الساكنة
+  const questions = [
+    {
+      subject: "فيزياء – تداخل ضوئي",
+      text: "الضوء الناتج عن تراكب ضوئي مصدرين أو أكثر مشكِّلًا مقدمات موجات منتظمة يُسمّى:",
+      choices: [
+        "الضوء غير المترابط",
+        "الضوء المستقطب",
+        "الضوء المترابط",
+        "الضوء غير المستقطب"
+      ],
+      correctIndex: 2 // الضوء المترابط
+    },
+    {
+      subject: "فيزياء – تداخل (شقين)",
+      text: "نمط من حزم مضيئة ومعتمة يتكوّن على شاشة نتيجة مرور الضوء خلال شقين يُسمّى:",
+      choices: [
+        "أهداب مركزية",
+        "أهداب الحيود",
+        "أهداب التداخل",
+        "أهداب لا مركزية"
+      ],
+      correctIndex: 2 // أهداب التداخل
+    },
+    {
+      subject: "فيزياء – حيود",
+      text: "أيُّ ممّا يلي يُعد مثالًا على الحيود؟",
+      choices: [
+        "انكسار الضوء عند عبوره بين وسطين",
+        "التفاف الضوء حول حافة حاجز",
+        "انعكاس الضوء عن المرآة",
+        "تداخل موجتين ضوئيتين"
+      ],
+      correctIndex: 1 // التفاف الضوء حول حافة حاجز
+    },
+    {
+      subject: "فيزياء – حيود الشق",
+      text: "إذا كان الشق ضيّقًا جدًّا، فإن كمية الحيود:",
+      choices: [
+        "تقل",
+        "تزيد",
+        "تختفي",
+        "تعتمد على لون الضوء فقط"
+      ],
+      correctIndex: 1 // تزيد
+    },
+    {
+      subject: "فيزياء – تداخل في الأغشية الرقيقة",
+      text: "ألوان الطيف التي نراها على فقاعة الصابون ناتجة عن:",
+      choices: [
+        "تحليل الضوء الأبيض بواسطة المنشور",
+        "امتصاص الألوان بواسطة الأصباغ",
+        "التداخل في الأغشية الرقيقة",
+        "جميع ما سبق"
+      ],
+      correctIndex: 2 // التداخل في الأغشية الرقيقة
+    },
+    {
+      subject: "فيزياء – كهرباء ساكنة",
+      text: "الفرقعة التي قد نسمعها عندما نمشي فوق سجادة سببها شحن الجسم عن طريق:",
+      choices: [
+        "التوصيل",
+        "الحث",
+        "التأريض",
+        "الدَّلْك"
+      ],
+      correctIndex: 3 // الدلك
+    },
+    {
+      subject: "فيزياء – كشاف كهربائي",
+      text: "إذا قُرِّب قضيب من كشاف كهربائي مشحون فازداد انفراج ورقتي الكشاف، فهذا يدل على أن الكشاف الكهربائي والقضيب:",
+      choices: [
+        "مشحونان بالشحنة نفسها",
+        "مشحونان بشحنتين مختلفتين",
+        "غير مشحونين",
+        "أحدهما فقط مشحون"
+      ],
+      correctIndex: 0 // مشحونان بالشحنة نفسها
+    },
+    {
+      subject: "فيزياء – كمية الشحنة",
+      text: "إذا كان ثابت الشحنة e = 1.6×10^-19 C، فإن مقدار شحنة 6.24×10^18 من الإلكترونات يساوي:",
+      choices: [
+        "1 كولوم",
+        "0.5 كولوم",
+        "0.1 كولوم",
+        "10 كولوم"
+      ],
+      correctIndex: 0 // 1 كولوم
+    },
+    {
+      subject: "فيزياء – مجال بين لوحين",
+      text: "إذا كانت المسافة بين لوحين متوازيين مشحونين 1.5 cm، ومقدار المجال الكهربائي بينهما 1800 N/C، فما فرق الجهد الكهربائي بين اللوحين بوحدة الفولت؟",
+      choices: [
+        "27 V",
+        "35 V",
+        "270 V",
+        "350 V"
+      ],
+      correctIndex: 0 // V = E d = 1800 × 0.015 = 27
+    },
+    {
+      subject: "فيزياء – تكمية الشحنة",
+      text: "طلب معلم من طلابه إيجاد مقدار الشحنة الكهربائية لجسم ما بالكولوم، وعندما نظر إلى الإجابات عرف أن إجابة واحدة فقط يمكن أن تكون صحيحة إذا كانت الشحنة كمية مكمّاة (e = 1.6×10^-19 C). أيٌّ من القيم الآتية ممكنة؟",
+      choices: [
+        "5×10^-19 C",
+        "10×10^-19 C",
+        "4.4×10^-19 C",
+        "3.2×10^-19 C"
+      ],
+      correctIndex: 3 // 3.2×10^-19 = 2e
+    }
+  ];
+
+  let currentIndex = 0;
+  let answers = new Array(questions.length).fill(null);
+  let timeLeft = new Array(questions.length).fill(QUESTION_TIME_SECONDS);
+  let timerId = null;
+  let quizStarted = false;
+  let quizFinished = false;
+
+  const app = document.getElementById("app");
+
+  // شاشة بيانات الطالبة
+  function renderStudentForm() {
+    app.innerHTML = "";
+
+    const section = document.createElement("div");
+    section.className = "section";
+
+    const title = document.createElement("div");
+    title.className = "section-title";
+    title.textContent = "بيانات الطالبة";
+
+    const instructions = document.createElement("div");
+    instructions.className = "instructions";
+    instructions.innerHTML = `
+      عبي البيانات تحت، عشان تطلع لك في نتيجة المحاكاة وتقدرين ترجعين لها بعدين لو حبيتي تحفظينها أو تصورينها 🌸
+    `;
+
+    const formGrid = document.createElement("div");
+    formGrid.className = "form-grid";
+
+    const nameField = document.createElement("div");
+    nameField.className = "form-field";
+    const nameLabel = document.createElement("label");
+    nameLabel.textContent = "اسم الطالبة *";
+    const nameInput = document.createElement("input");
+    nameInput.type = "text";
+    nameInput.placeholder = "مثال: نورة بنت محمد";
+    nameInput.value = studentInfo.name;
+    nameField.appendChild(nameLabel);
+    nameField.appendChild(nameInput);
+
+    const schoolField = document.createElement("div");
+    schoolField.className = "form-field";
+    const schoolLabel = document.createElement("label");
+    schoolLabel.textContent = "اسم المدرسة";
+    const schoolInput = document.createElement("input");
+    schoolInput.type = "text";
+    schoolInput.placeholder = "مثال: الثانوية الثانية للبنات";
+    schoolInput.value = studentInfo.school;
+    schoolField.appendChild(schoolLabel);
+    schoolField.appendChild(schoolInput);
+
+    const gradeField = document.createElement("div");
+    gradeField.className = "form-field";
+    const gradeLabel = document.createElement("label");
+    gradeLabel.textContent = "الصف / المسار";
+    const gradeSelect = document.createElement("select");
+    const gradeOptions = [
+      "",
+      "ثالث ثانوي – مسار عام",
+      "أخرى"
+    ];
+    gradeOptions.forEach((opt) => {
+      const o = document.createElement("option");
+      o.value = opt;
+      o.textContent = opt === "" ? "اختاري (اختياري)" : opt;
+      if (opt === studentInfo.grade) o.selected = true;
+      gradeSelect.appendChild(o);
+    });
+    gradeField.appendChild(gradeLabel);
+    gradeField.appendChild(gradeSelect);
+
+    formGrid.appendChild(nameField);
+    formGrid.appendChild(schoolField);
+    formGrid.appendChild(gradeField);
+
+    const btnRow = document.createElement("div");
+    btnRow.className = "btn-row";
+
+    const nextBtn = document.createElement("button");
+    nextBtn.className = "btn btn-primary btn-center";
+    nextBtn.textContent = "التالي → تعليمات المحاكاة";
+    nextBtn.onclick = () => {
+      const nameVal = nameInput.value.trim();
+      if (!nameVal) {
+        alert("حطّي اسمك أول، على الأقل الاسم الأول 🌸");
+        return;
+      }
+      studentInfo.name = nameVal;
+      studentInfo.school = schoolInput.value.trim();
+      studentInfo.grade = gradeSelect.value;
+      renderInstructions();
+    };
+
+    btnRow.appendChild(nextBtn);
+
+    section.appendChild(title);
+    section.appendChild(instructions);
+    section.appendChild(formGrid);
+    section.appendChild(btnRow);
+
+    app.appendChild(section);
+  }
+
+  // شاشة التعليمات
+  function renderInstructions() {
+    app.innerHTML = "";
+    const section = document.createElement("div");
+    section.className = "section";
+
+    const title = document.createElement("div");
+    title.className = "section-title";
+    title.textContent = `قبل نبدأ يا ${studentInfo.name || "طالبة"} 👇`;
+
+    const instructions = document.createElement("div");
+    instructions.className = "instructions";
+    instructions.innerHTML = `
+      هذي محاكاة بسيط للتحصيلي، عشان تتعودين على جو الأسئلة والوقت، مو اختبار رسمي ولا مرتبط بأي جهة.
+      <ul>
+        <li>عدد الأسئلة هنا: <strong>${questions.length} سؤال في فيزياء</strong>.</li>
+        <li>لكل سؤال <strong>دقيقة وحدة</strong>، والعدّاد فوق يبيّن لك كم باقي.</li>
+        <li>كل سؤال له <strong>إجابة وحدة صح</strong>، اختاري اللي تحسّينه أقرب للحل.</li>
+        <li>في ورقة الإجابة، ظلّلي خيارك عند رقم السؤال.</li>
+        <li>تقدرين تتنقلين بين الأسئلة بزرّي <strong>السؤال اللي قبل</strong> و<strong>اللي بعده</strong> طول ما وقت السؤال ما خلص.</li>
+      </ul>
+    `;
+
+    const metaGrid = document.createElement("div");
+    metaGrid.className = "meta-grid";
+    metaGrid.innerHTML = `
+      <div class="meta-card">
+        <div class="meta-label">اسم الطالبة</div>
+        <div class="meta-value">${studentInfo.name || "—"}</div>
+      </div>
+      <div class="meta-card">
+        <div class="meta-label">المدرسة</div>
+        <div class="meta-value">${studentInfo.school || "—"}</div>
+      </div>
+      <div class="meta-card">
+        <div class="meta-label">كم سؤال؟</div>
+        <div class="meta-value">${questions.length} سؤال</div>
+      </div>
+      <div class="meta-card">
+        <div class="meta-label">الوقت التقريبي</div>
+        <div class="meta-value">${questions.length} دقيقة تقريبًا</div>
+      </div>
+    `;
+
+    const btnRow = document.createElement("div");
+    btnRow.className = "btn-row";
+
+    const backBtn = document.createElement("button");
+    backBtn.className = "btn";
+    backBtn.textContent = "رجوع لتعديل البيانات";
+    backBtn.onclick = () => renderStudentForm();
+
+    const startBtn = document.createElement("button");
+    startBtn.className = "btn btn-primary";
+    startBtn.textContent = "يلا نبدأ ✨";
+    startBtn.onclick = () => {
+      quizStarted = true;
+      currentIndex = 0;
+      quizFinished = false;
+      startQuestionTimer();
+      renderQuestion();
+    };
+
+    btnRow.appendChild(backBtn);
+    btnRow.appendChild(startBtn);
+
+    section.appendChild(title);
+    section.appendChild(instructions);
+    section.appendChild(metaGrid);
+    section.appendChild(btnRow);
+
+    app.appendChild(section);
+  }
+
+  function startQuestionTimer() {
+    clearInterval(timerId);
+    if (quizFinished) return;
+
+    timerId = setInterval(() => {
+      if (timeLeft[currentIndex] > 0) {
+        timeLeft[currentIndex]--;
+        updateTimerDisplay();
+      } else {
+        clearInterval(timerId);
+        if (currentIndex < questions.length - 1) {
+          currentIndex++;
+          startQuestionTimer();
+          renderQuestion();
+        } else {
+          finishQuiz();
+        }
+      }
+    }, 1000);
+  }
+
+  function updateTimerDisplay() {
+    const timerEl = document.getElementById("question-timer");
+    if (!timerEl) return;
+    const seconds = timeLeft[currentIndex];
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    timerEl.textContent = `${m}:${s.toString().padStart(2, "0")}`;
+
+    if (seconds <= 10) {
+      timerEl.parentElement.classList.add("urgent");
+    } else {
+      timerEl.parentElement.classList.remove("urgent");
+    }
+  }
+
+  function renderQuestion() {
+    if (!quizStarted) {
+      renderInstructions();
+    return;
+    }
+    if (quizFinished) {
+      renderResult();
+      return;
+    }
+
+    const q = questions[currentIndex];
+    app.innerHTML = "";
+
+    const section = document.createElement("div");
+    section.className = "section";
+
+    const headerRow = document.createElement("div");
+    headerRow.className = "quiz-header-row";
+
+    const leftInfo = document.createElement("div");
+    leftInfo.textContent = `السؤال ${currentIndex + 1} من ${questions.length}`;
+
+    const timerPill = document.createElement("div");
+    timerPill.className = "timer-pill";
+    timerPill.innerHTML = `الوقت المتبقي: <span id="question-timer"></span>`;
+
+    headerRow.appendChild(leftInfo);
+    headerRow.appendChild(timerPill);
+
+    const questionCard = document.createElement("div");
+    questionCard.className = "question-card";
+
+    const subjectTag = document.createElement("div");
+    subjectTag.className = "subject-tag";
+    subjectTag.textContent = q.subject;
+
+    const qNumber = document.createElement("div");
+    qNumber.className = "question-number";
+    qNumber.textContent = "اختر إجابة واحدة فقط:";
+
+    const qText = document.createElement("div");
+    qText.className = "question-text";
+    qText.textContent = q.text;
+
+    const optionsDiv = document.createElement("div");
+    optionsDiv.className = "options";
+
+    const optionLabels = ["أ", "ب", "ج", "د", "هـ", "و"];
+
+    const isTimeUp = timeLeft[currentIndex] <= 0;
+
+    q.choices.forEach((choice, idx) => {
+      const btn = document.createElement("button");
+      btn.className = "option-btn";
+      if (answers[currentIndex] === idx) {
+        btn.classList.add("selected");
+      }
+      if (isTimeUp) {
+        btn.classList.add("disabled");
+      }
+
+      btn.innerHTML = `
+        <span>${optionLabels[idx] || ""}</span>
+        <span>${choice}</span>
+      `;
+
+      if (!isTimeUp) {
+        btn.onclick = () => {
+          answers[currentIndex] = idx;
+          Array.from(optionsDiv.children).forEach((b, i) => {
+            b.classList.toggle("selected", i === idx);
+          });
+        };
+      }
+
+      optionsDiv.appendChild(btn);
+    });
+
+    questionCard.appendChild(subjectTag);
+    questionCard.appendChild(qNumber);
+    questionCard.appendChild(qText);
+    questionCard.appendChild(optionsDiv);
+
+    const footer = document.createElement("div");
+    footer.className = "quiz-footer";
+
+    const leftInfoFooter = document.createElement("div");
+    leftInfoFooter.textContent = "لا تنسين تضلّلين إجابتك في ورقة الإجابة 👍";
+
+    const nav = document.createElement("div");
+    nav.className = "nav-buttons";
+
+    const prevBtn = document.createElement("button");
+    prevBtn.className = "btn";
+    prevBtn.textContent = "السؤال اللي قبل";
+    prevBtn.disabled = currentIndex === 0;
+    prevBtn.onclick = () => {
+      clearInterval(timerId);
+      currentIndex--;
+      startQuestionTimer();
+      renderQuestion();
+    };
+
+    const nextBtn = document.createElement("button");
+    nextBtn.className = "btn btn-primary";
+    nextBtn.textContent =
+      currentIndex === questions.length - 1 ? "إنهاء المحاكاة" : "اللي بعده";
+    nextBtn.onclick = () => {
+      if (currentIndex === questions.length - 1) {
+        finishQuiz();
+      } else {
+        clearInterval(timerId);
+        currentIndex++;
+        startQuestionTimer();
+        renderQuestion();
+      }
+    };
+
+    nav.appendChild(prevBtn);
+    nav.appendChild(nextBtn);
+
+    footer.appendChild(leftInfoFooter);
+    footer.appendChild(nav);
+
+    section.appendChild(headerRow);
+    section.appendChild(questionCard);
+    section.appendChild(footer);
+
+    app.appendChild(section);
+
+    updateTimerDisplay();
+  }
+
+  function finishQuiz() {
+    clearInterval(timerId);
+    quizFinished = true;
+    renderResult();
+  }
+
+  function renderResult() {
+    app.innerHTML = "";
+
+    const section = document.createElement("div");
+    section.className = "section";
+
+    const box = document.createElement("div");
+    box.className = "result-box";
+
+    let correctCount = 0;
+    questions.forEach((q, i) => {
+      if (answers[i] === q.correctIndex) correctCount++;
+    });
+
+    const percent = (correctCount / questions.length) * 100;
+
+    const main = document.createElement("div");
+    main.className = "result-main";
+    main.textContent = `${correctCount} / ${questions.length} (${percent.toFixed(0)}٪)`;
+
+    const note = document.createElement("div");
+    note.className = "result-note";
+
+    const nameForMsg = studentInfo.name || "يا طالبة";
+
+    if (percent >= 80) {
+      note.textContent = `${nameForMsg}، ما شاء الله، أداء قوي جدًا! مستواك في الفيزياء مره ممتاز 👏`;
+    } else if (percent >= 60) {
+      note.textContent = `${nameForMsg}، بداية ممتازة، بس تحتاجين تشدّين شوي بالمراجعة زيادة وتضبطينها إن شاء الله 💪`;
+    } else {
+      note.textContent = `${nameForMsg}، لا تشيلين هم النسبة أبد، المحاكاة هذي بس عشان تتعودين على الجو. جرّبي مرة ثانية وتأكدي إنك تراجعين الأفكار اللي غلطتِ فيها ✨`;
+    }
+
+    const meta = document.createElement("div");
+    meta.className = "result-meta";
+    meta.textContent = "النتيجة هنا تدريبية فقط ليست درجة رسمية للتحصيلي ولا تابعة لأي جهة.";
+
+    const info = document.createElement("div");
+    info.className = "result-meta";
+    info.style.marginTop = "6px";
+    info.textContent = `الاسم: ${studentInfo.name || "—"}  |  المدرسة: ${studentInfo.school || "—"}  |  الصف/المسار: ${studentInfo.grade || "—"}`;
+
+    const btnRow = document.createElement("div");
+    btnRow.className = "btn-row";
+
+    const retry = document.createElement("button");
+    retry.className = "btn btn-primary";
+    retry.textContent = "أعيد المحاك من جديد";
+    retry.onclick = () => {
+      answers = new Array(questions.length).fill(null);
+      timeLeft = new Array(questions.length).fill(QUESTION_TIME_SECONDS);
+      currentIndex = 0;
+      quizFinished = false;
+      quizStarted = true;
+      startQuestionTimer();
+      renderQuestion();
+    };
+
+    const back = document.createElement("button");
+    back.className = "btn";
+    back.textContent = "رجوع لتعليمات المحاك";
+    back.onclick = () => {
+      answers = new Array(questions.length).fill(null);
+      timeLeft = new Array(questions.length).fill(QUESTION_TIME_SECONDS);
+      currentIndex = 0;
+      quizFinished = false;
+      quizStarted = false;
+      renderInstructions();
+    };
+
+    btnRow.appendChild(back);
+    btnRow.appendChild(retry);
+
+    box.appendChild(main);
+    box.appendChild(note);
+    box.appendChild(meta);
+    box.appendChild(info);
+    box.appendChild(btnRow);
+
+    section.appendChild(box);
+    app.appendChild(section);
+  }
+
+  renderStudentForm();
+</script>
+</body>
+</html>
