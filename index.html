@@ -155,7 +155,7 @@
 
     .btn-center {
       display: inline-flex;
-      margin: 0 auto;   /* يوسّط الزر داخل الحاوية */
+      margin: 0 auto;
     }
 
     .btn[disabled] {
@@ -235,7 +235,7 @@
 
     .option-btn {
       width: 100%;
-      textalign: right;
+      text-align: right;
       border-radius: 12px;
       border: 1px solid rgba(55, 65, 81, 0.9);
       padding: 9px 12px;
@@ -331,12 +331,14 @@
       gap: 10px;
       margin-top: 8px;
     }
+
     .footer-names {
       margin-top: 4px;
       margin-bottom: 4px;
       font-size: 0.8rem;
       opacity: 0.9;
     }
+
     .form-field {
       display: flex;
       flex-direction: column;
@@ -391,17 +393,18 @@
 
   <div id="app"></div>
 
- <footer class="footer">
-  <div>محاكاة التحصيلي من إعداد:</div>
-  <div class="footer-names">
-    أميرة، شيماء، حسناء، سمية، مريم، بلسم، بسمه، هيفاء، جنى
-  </div>
-  <div>© 2025 – للاستخدام التدريبي فقط</div>
-</footer>
+  <footer class="footer">
+    <div>محاكاة التحصيلي من إعداد:</div>
+    <div class="footer-names">
+      أميرة، شيماء، حسناء، سمية، مريم، بلسم، بسمه، هيفاء، جنى
+    </div>
+    <div>© 2025 – للاستخدام التدريبي فقط</div>
+  </footer>
 </div>
 
 <script>
   const QUESTION_TIME_SECONDS = 60; // ثانية لكل سؤال
+  const STORAGE_KEY = "tahseeliPhysicsAttempt_v1";
 
   const studentInfo = {
     name: "",
@@ -409,7 +412,15 @@
     grade: ""
   };
 
-  // 10 أسئلة فيزياء
+  // قراءة محاولة محفوظة (لو فيه)
+  let savedAttempt = null;
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) savedAttempt = JSON.parse(stored);
+  } catch (e) {
+    savedAttempt = null;
+  }
+
   // 10 أسئلة فيزياء عن الضوء والكهرباء الساكنة
   const questions = [
     {
@@ -421,7 +432,7 @@
         "الضوء المترابط",
         "الضوء غير المستقطب"
       ],
-      correctIndex: 2 // الضوء المترابط
+      correctIndex: 2
     },
     {
       subject: "فيزياء – تداخل (شقين)",
@@ -432,7 +443,7 @@
         "أهداب التداخل",
         "أهداب لا مركزية"
       ],
-      correctIndex: 2 // أهداب التداخل
+      correctIndex: 2
     },
     {
       subject: "فيزياء – حيود",
@@ -443,7 +454,7 @@
         "انعكاس الضوء عن المرآة",
         "تداخل موجتين ضوئيتين"
       ],
-      correctIndex: 1 // التفاف الضوء حول حافة حاجز
+      correctIndex: 1
     },
     {
       subject: "فيزياء – حيود الشق",
@@ -454,7 +465,7 @@
         "تختفي",
         "تعتمد على لون الضوء فقط"
       ],
-      correctIndex: 1 // تزيد
+      correctIndex: 1
     },
     {
       subject: "فيزياء – تداخل في الأغشية الرقيقة",
@@ -465,7 +476,7 @@
         "التداخل في الأغشية الرقيقة",
         "جميع ما سبق"
       ],
-      correctIndex: 2 // التداخل في الأغشية الرقيقة
+      correctIndex: 2
     },
     {
       subject: "فيزياء – كهرباء ساكنة",
@@ -476,7 +487,7 @@
         "التأريض",
         "الدَّلْك"
       ],
-      correctIndex: 3 // الدلك
+      correctIndex: 3
     },
     {
       subject: "فيزياء – كشاف كهربائي",
@@ -487,7 +498,7 @@
         "غير مشحونين",
         "أحدهما فقط مشحون"
       ],
-      correctIndex: 0 // مشحونان بالشحنة نفسها
+      correctIndex: 0
     },
     {
       subject: "فيزياء – كمية الشحنة",
@@ -498,7 +509,7 @@
         "0.1 كولوم",
         "10 كولوم"
       ],
-      correctIndex: 0 // 1 كولوم
+      correctIndex: 0
     },
     {
       subject: "فيزياء – مجال بين لوحين",
@@ -509,7 +520,7 @@
         "270 V",
         "350 V"
       ],
-      correctIndex: 0 // V = E d = 1800 × 0.015 = 27
+      correctIndex: 0
     },
     {
       subject: "فيزياء – تكمية الشحنة",
@@ -520,7 +531,7 @@
         "4.4×10^-19 C",
         "3.2×10^-19 C"
       ],
-      correctIndex: 3 // 3.2×10^-19 = 2e
+      correctIndex: 3
     }
   ];
 
@@ -532,6 +543,50 @@
   let quizFinished = false;
 
   const app = document.getElementById("app");
+
+  // شاشة لو سبق وحُلّ المحاك من هذا المتصفح
+  function renderLockedScreen() {
+    app.innerHTML = "";
+
+    const section = document.createElement("div");
+    section.className = "section";
+
+    const box = document.createElement("div");
+    box.className = "result-box";
+
+    const title = document.createElement("div");
+    title.className = "section-title";
+    title.textContent = "سبق وحلّيتي هذا المحاك من هذا المتصفح 🌸";
+
+    const main = document.createElement("div");
+    main.className = "result-main";
+    if (savedAttempt) {
+      main.textContent = `${savedAttempt.score} / ${savedAttempt.total} (${savedAttempt.percent}٪)`;
+    } else {
+      main.textContent = "لا توجد نتيجة محفوظة.";
+    }
+
+    const info = document.createElement("div");
+    info.className = "result-meta";
+    if (savedAttempt) {
+      info.textContent =
+        `الاسم: ${savedAttempt.name || "—"}  |  المدرسة: ${savedAttempt.school || "—"}  |  الصف/المسار: ${savedAttempt.grade || "—"}  |  التاريخ: ${savedAttempt.date || "—"}`;
+    } else {
+      info.textContent = "النتيجة غير متوفرة، جرّبي من متصفح أو جهاز آخر إذا ما حلّيتي من قبل.";
+    }
+
+    const note = document.createElement("div");
+    note.className = "result-note";
+    note.textContent = "المحاكاة مسموحة مرة واحدة فقط من هذا المتصفح. لو تحتاجين تدريب زيادة، استخدمي جهاز أو متصفح مختلف.";
+
+    box.appendChild(title);
+    box.appendChild(main);
+    box.appendChild(note);
+    box.appendChild(info);
+
+    section.appendChild(box);
+    app.appendChild(section);
+  }
 
   // شاشة بيانات الطالبة
   function renderStudentForm() {
@@ -640,9 +695,9 @@
     const instructions = document.createElement("div");
     instructions.className = "instructions";
     instructions.innerHTML = `
-      هذي محاكاة بسيط للتحصيلي، عشان تتعودين على جو الأسئلة والوقت، مو اختبار رسمي ولا مرتبط بأي جهة.
+      هذي محاكاة بسيطة للتحصيلي، عشان تتعودين على جو الأسئلة والوقت، مو اختبار رسمي ولا مرتبط بأي جهة.
       <ul>
-        <li>عدد الأسئلة هنا: <strong>${questions.length} أسئلة في فيزياء</strong>.</li>
+        <li>عدد الأسئلة هنا: <strong>${questions.length} سؤال في فيزياء</strong>.</li>
         <li>لكل سؤال <strong>دقيقة وحدة</strong>، والعدّاد فوق يبيّن لك كم باقي.</li>
         <li>كل سؤال له <strong>إجابة وحدة صح</strong>، اختاري اللي تحسّينه أقرب للحل.</li>
         <li>في ورقة الإجابة، ظلّلي خيارك عند رقم السؤال.</li>
@@ -740,7 +795,7 @@
   function renderQuestion() {
     if (!quizStarted) {
       renderInstructions();
-    return;
+      return;
     }
     if (quizFinished) {
       renderResult();
@@ -892,6 +947,25 @@
 
     const percent = (correctCount / questions.length) * 100;
 
+    // حفظ أول محاولة في localStorage
+    if (!savedAttempt) {
+      const attempt = {
+        name: studentInfo.name,
+        school: studentInfo.school,
+        grade: studentInfo.grade,
+        score: correctCount,
+        total: questions.length,
+        percent: percent.toFixed(0),
+        date: new Date().toLocaleString("ar-SA")
+      };
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(attempt));
+        savedAttempt = attempt;
+      } catch (e) {
+        // نتجاهل مشاكل التخزين
+      }
+    }
+
     const main = document.createElement("div");
     main.className = "result-main";
     main.textContent = `${correctCount} / ${questions.length} (${percent.toFixed(0)}٪)`;
@@ -906,60 +980,34 @@
     } else if (percent >= 60) {
       note.textContent = `${nameForMsg}، بداية ممتازة، بس تحتاجين تشدّين شوي بالمراجعة زيادة وتضبطينها إن شاء الله 💪`;
     } else {
-      note.textContent = `${nameForMsg}، لا تشيلين هم النسبة أبد، المحاكاة هذي بس عشان تتعودين على الجو. جرّبي مرة ثانية وتأكدي إنك تراجعين الأفكار اللي غلطتِ فيها ✨`;
+      note.textContent = `${nameForMsg}، لا تشيلين هم النسبة أبد، المحاكاة هذي بس عشان تتعودين على الجو. راجعي الأسئلة اللي غلطتِ فيها، ولو احتجتِ تدريب زيادة استخدمي جهاز أو متصفح آخر ✨`;
     }
 
     const meta = document.createElement("div");
     meta.className = "result-meta";
-    meta.textContent = "النتيجة هنا تدريبية فقط ليست درجة رسمية للتحصيلي ولا تابعة لأي جهة.";
+    meta.textContent = "النتيجة هنا تدريبية فقط، ليست درجة رسمية للتحصيلي ولا تابعة لأي جهة.";
 
     const info = document.createElement("div");
     info.className = "result-meta";
     info.style.marginTop = "6px";
-    info.textContent = `الاسم: ${studentInfo.name || "—"}  |  المدرسة: ${studentInfo.school || "—"}  |  الصف/المسار: ${studentInfo.grade || "—"}`;
-
-    const btnRow = document.createElement("div");
-    btnRow.className = "btn-row";
-
-    const retry = document.createElement("button");
-    retry.className = "btn btn-primary";
-    retry.textContent = "أعيد المحاك من جديد";
-    retry.onclick = () => {
-      answers = new Array(questions.length).fill(null);
-      timeLeft = new Array(questions.length).fill(QUESTION_TIME_SECONDS);
-      currentIndex = 0;
-      quizFinished = false;
-      quizStarted = true;
-      startQuestionTimer();
-      renderQuestion();
-    };
-
-    const back = document.createElement("button");
-    back.className = "btn";
-    back.textContent = "رجوع لتعليمات المحاك";
-    back.onclick = () => {
-      answers = new Array(questions.length).fill(null);
-      timeLeft = new Array(questions.length).fill(QUESTION_TIME_SECONDS);
-      currentIndex = 0;
-      quizFinished = false;
-      quizStarted = false;
-      renderInstructions();
-    };
-
-    btnRow.appendChild(back);
-    btnRow.appendChild(retry);
+    info.textContent =
+      `الاسم: ${studentInfo.name || "—"}  |  المدرسة: ${studentInfo.school || "—"}  |  الصف/المسار: ${studentInfo.grade || "—"}`;
 
     box.appendChild(main);
     box.appendChild(note);
     box.appendChild(meta);
     box.appendChild(info);
-    box.appendChild(btnRow);
 
     section.appendChild(box);
     app.appendChild(section);
   }
 
-  renderStudentForm();
+  // أول شاشة: لو فيه محاولة محفوظة نعرض شاشة القفل، غير كذا نبدأ ببيانات الطالبة
+  if (savedAttempt) {
+    renderLockedScreen();
+  } else {
+    renderStudentForm();
+  }
 </script>
 </body>
 </html>
