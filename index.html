@@ -405,6 +405,7 @@
 <script>
   const QUESTION_TIME_SECONDS = 60; // ثانية لكل سؤال
   const STORAGE_KEY = "tahseeliPhysicsAttempt_v1";
+  const SHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbyKbRXVXFo6peL0l15N-gTL01WxBAKgFe369LDZwbF7ka_00M4upu4BhD6eUFVXXfZkZg/exec";
 
   const studentInfo = {
     name: "",
@@ -963,6 +964,33 @@
         savedAttempt = attempt;
       } catch (e) {
         // نتجاهل مشاكل التخزين
+      }
+
+      // إرسال النتيجة إلى Google Sheets
+      if (SHEET_ENDPOINT) {
+        const payload = {
+          name: attempt.name,
+          school: attempt.school,
+          grade: attempt.grade,
+          score: attempt.score,
+          total: attempt.total,
+          percent: attempt.percent,
+          date: attempt.date,
+          browser: navigator.userAgent
+        };
+        try {
+          fetch(SHEET_ENDPOINT, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+          }).catch((err) => {
+            console.error("Sheet error (catch):", err);
+          });
+        } catch (err) {
+          console.error("Sheet error (try):", err);
+        }
       }
     }
 
