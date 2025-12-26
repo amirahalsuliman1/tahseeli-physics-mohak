@@ -948,7 +948,7 @@
 
     const percent = (correctCount / questions.length) * 100;
 
-    // حفظ أول محاولة في localStorage
+    // حفظ أول محاولة في localStorage + إرسالها للشيت
     if (!savedAttempt) {
       const attempt = {
         name: studentInfo.name,
@@ -959,6 +959,7 @@
         percent: percent.toFixed(0),
         date: new Date().toLocaleString("ar-SA")
       };
+
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(attempt));
         savedAttempt = attempt;
@@ -966,7 +967,7 @@
         // نتجاهل مشاكل التخزين
       }
 
-      // إرسال النتيجة إلى Google Sheets
+      // إرسال النتيجة إلى Google Sheets (مرّة واحدة فقط)
       if (SHEET_ENDPOINT) {
         const payload = {
           name: attempt.name,
@@ -978,12 +979,11 @@
           date: attempt.date,
           browser: navigator.userAgent
         };
+
         try {
           fetch(SHEET_ENDPOINT, {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
+            mode: "no-cors",
             body: JSON.stringify(payload)
           }).catch((err) => {
             console.error("Sheet error (catch):", err);
